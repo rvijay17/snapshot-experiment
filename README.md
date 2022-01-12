@@ -36,6 +36,12 @@ $ cd jaffle_shop
 
 So far, this has just been using a locally installed Postgress database on macOS. An easy way to get started with this is via the app [here](https://postgresapp.com/). 
 
+To run SQL against the database, use any client such as:
+* pgadmin 4 - https://www.pgadmin.org/
+* https://eggerapps.at/postico/
+* DBeaver - https://dbeaver.io/
+
+
 Configure your local profiles.yml file to include a project like this:
 
 ```yaml
