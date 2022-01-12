@@ -2,7 +2,7 @@
 
 {{
     config(
-
+      tags=["source"],
       unique_key='id',
       target_schema='dev_evan',
       strategy='timestamp',
