@@ -1,25 +1,24 @@
-## Testing dbt project: `jaffle_shop`
+## Testing dbt snapshots`
 
-`jaffle_shop` is a fictional ecommerce store. This dbt project transforms raw data from an app database into a customers and orders model ready for analytics.
-
-### What is this repo?
-What this repo _is_:
-- A self-contained playground dbt project, useful for testing out scripts, and communicating some of the core dbt concepts.
-
-What this repo _is not_:
-- A tutorial — check out the [Getting Started Tutorial](https://docs.getdbt.com/tutorial/setting-up) for that. Notably, this repo contains some anti-patterns to make it self-contained, namely the use of seeds instead of sources.
-- A demonstration of best practices — check out the [dbt Learn Demo](https://github.com/fishtown-analytics/dbt-learn-demo-v2-archive) repo instead. We want to keep this project as simple as possible. As such, we chose not to implement:
-    - our standard file naming patterns (which make more sense on larger projects, rather than this five-model project)
-    - a pull request flow
-    - CI/CD integrations
-- A demonstration of using dbt for a high-complex project, or a demo of advanced features (e.g. macros, packages, hooks, operations) — we're just trying to keep things simple here!
+This project is an experiment in using multi-layer snapshots.
 
 ### What's in this repo?
-This repo contains [seeds](https://docs.getdbt.com/docs/building-a-dbt-project/seeds) that includes some (fake) raw data from a fictional app.
+This repo contains [seeds](https://docs.getdbt.com/docs/building-a-dbt-project/seeds) that includes some (fake) raw data for this experiment. This is based off the examples
+from the Confluence page here: 
+[SVoC Integration Data Refresh Requirements and Options](https://confluence.iag.com.au/display/INAU/SVoC+Integration+Data+Refresh+Requirements+and+Options)
 
-The raw data consists of customers, orders, and payments, with the following entity-relationship diagram:
+The raw data consists of:
 
-![Jaffle Shop ERD](/etc/jaffle_shop_erd.png)
+* transaction_set
+* transaction
+* transaction_line
+
+There are a number of variations of this entity data as it is processed:
+
+* raw_cc_transaction_xxx tables - populated once via seed
+* cc_transaction_xxx tables - populated by selecting a day's worth of data from the raw tables
+* source_cc_transaction_xxx tables - result of snapshot processing of daily data
+* intg_claim_transaction table - result of running an Integration snapshot
 
 
 ### Running this project
@@ -33,8 +32,25 @@ To get up and running with this project:
 $ cd jaffle_shop
 ```
 
-4. Set up a profile called `jaffle_shop` to connect to a data warehouse by following [these instructions](https://docs.getdbt.com/docs/configure-your-profile). If you have access to a data warehouse, you can use those credentials – we recommend setting your [target schema](https://docs.getdbt.com/docs/configure-your-profile#section-populating-your-profile) to be a new schema (dbt will create the schema for you, as long as you have the right privileges). If you don't have access to an existing data warehouse, you can also setup a local postgres database and connect to it in your profile.
+4. Set up a profile called `jaffle_shop` to connect to a data warehouse by following [these instructions](https://docs.getdbt.com/docs/configure-your-profile). 
 
+So far, this has just been using a locally installed Postgress database on macOS. Configure your local profiles.yml file to include a project like this:
+
+```yaml
+pg:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: evan
+      password: evan
+      port: 5132
+      dbname: evan
+      schema: dev_evan
+      threads: 1
+      keepalives_idle: 0 # default 0, indicating the system default
+```
 5. Ensure your profile is setup correctly from the command line:
 ```bash
 $ dbt debug
@@ -44,35 +60,73 @@ $ dbt debug
 ```bash
 $ dbt seed
 ```
+Each seed file contains data across a number of days - each day has a specific key, such as **d1**, **d2**, etc. 
 
-7. Run the models:
-```bash
-$ dbt run
+7. Populate a day of data from the seed tables to the raw data, by running SQL like this:
+```sql
+-- only drop the tables if they already exist
+--drop table cc_transaction_set;
+--drop table cc_transaction;
+--drop table cc_transaction_line;
+
+select id,trandate,transet,userid,updatetime 
+into cc_transaction_set
+from raw_cc_transaction_set rt
+where day_id = 'd1'
+;
+select id,transetid,"type",auth,updatetime  
+into cc_transaction
+from raw_cc_transaction rt
+where day_id = 'd1'
+;
+select id,tranid,"desc",amount,updatetime 
+into cc_transaction_line
+from raw_cc_transaction_line rt
+where day_id = 'd1'
+;
 ```
 
-> **NOTE:** If this steps fails, it might mean that you need to make small changes to the SQL in the models folder to adjust for the flavor of SQL of your target database. Definitely consider this if you are using a community-contributed adapter.
-
-8. Test the output of the models:
+8. Perform a daily snapshot:
 ```bash
-$ dbt test
+$ dbt snapshot --select tag:source
+```
+This will produce / update the Daily snapshots to be used at the source layer
+
+### Integration Layer
+
+The integration layer combines data from a number of entities, but should also maintain history.
+
+There are two ways of achieving this:
+
+1. direct select statements peforming the appropriate joins
+2. encoding this type of join statement into specific Integration snapshot processing - essentially materialising this information on a daily basis.
+
+For example, to see the effective data from 2021-07-03, this query joins the 3 entities:
+```sql
+select concat(ts.id, '~', t.id, '~', tl.id) as claim_transaction_key
+    , ts.trandate as trans_date
+    , ts.transet  as trans_set_type
+    , ts.userid   as trans_set_userid
+    , t."type"    as trans_type
+    , t.auth      as trans_authorised
+    , tl."desc"   as trans_desc
+    , tl."amount" as trans_amount
+    , greatest(ts.dbt_updated_at, t.dbt_updated_at, tl.dbt_updated_at) as trans_update_time
+    
+from source_cc_transaction_set ts 
+  left join source_cc_transaction t on ts.id = t.transetid
+  left join source_cc_transaction_line tl on t.id = tl.tranid
+where '2021-07-03 23:59:59' between ts.dbt_valid_from and coalesce(ts.dbt_valid_to,'9999-12-31 23:59:59')
+  and '2021-07-03 23:59:59' between t.dbt_valid_from  and coalesce(t.dbt_valid_to,'9999-12-31 23:59:59')
+  and '2021-07-03 23:59:59' between tl.dbt_valid_from and coalesce(tl.dbt_valid_to,'9999-12-31 23:59:59')
+
 ```
 
-9. Generate documentation for the project:
-```bash
-$ dbt docs generate
-```
+### Further work
 
-10. View the documentation for the project:
-```bash
-$ dbt docs serve
-```
+#### Snapshot Strategies
 
-### What is a jaffle?
-A jaffle is a toasted sandwich with crimped, sealed edges. Invented in Bondi in 1949, the humble jaffle is an Australian classic. The sealed edges allow jaffle-eaters to enjoy liquid fillings inside the sandwich, which reach temperatures close to the core of the earth during cooking. Often consumed at home after a night out, the most classic filling is tinned spaghetti, while my personal favourite is leftover beef stew with melted cheese.
+Investiagate the use of different snapshot strategies.
 
----
-For more information on dbt:
-- Read the [introduction to dbt](https://docs.getdbt.com/docs/introduction).
-- Read the [dbt viewpoint](https://docs.getdbt.com/docs/about/viewpoint).
-- Join the [dbt community](http://community.getdbt.com/).
----
+A current hypothesis is:
+* the daily / source layer should use the Timestamp strategy
