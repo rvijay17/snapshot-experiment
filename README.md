@@ -34,7 +34,9 @@ $ cd jaffle_shop
 
 4. Set up a profile called `jaffle_shop` to connect to a data warehouse by following [these instructions](https://docs.getdbt.com/docs/configure-your-profile). 
 
-So far, this has just been using a locally installed Postgress database on macOS. Configure your local profiles.yml file to include a project like this:
+So far, this has just been using a locally installed Postgress database on macOS. An easy way to get started with this is via the app [here](https://postgresapp.com/). 
+
+Configure your local profiles.yml file to include a project like this:
 
 ```yaml
 pg:
