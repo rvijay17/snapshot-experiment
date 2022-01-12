@@ -2,6 +2,17 @@
 
 This project is an experiment in using multi-layer snapshots.
 
+```mermaid
+flowchart LR 
+  subgraph Source Layer
+  daily-source-->snapshot([snapshot daily])-->source-history
+  end
+  subgraph Integration Layer
+  direction LR
+  source-history-->intg-snapshot([intg snapshot daily])-->intghistory[intg history]
+  end
+```
+
 ### What's in this repo?
 This repo contains [seeds](https://docs.getdbt.com/docs/building-a-dbt-project/seeds) that includes some (fake) raw data for this experiment. This is based off the examples
 from the Confluence page here: 
