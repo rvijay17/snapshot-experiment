@@ -18,7 +18,7 @@ payments as (
 
 customer_orders as (
 
-        select
+    select
         customer_id,
 
         min(order_date) as first_order,
@@ -34,12 +34,9 @@ customer_payments as (
 
     select
         orders.customer_id,
-        sum(amount) as total_amount
-
+        sum(payments.amount) as total_amount
     from payments
-
-    left join orders using (order_id)
-
+    left join orders on payments.order_id = orders.order_id
     group by 1
 
 ),
@@ -56,11 +53,10 @@ final as (
         customer_payments.total_amount as customer_lifetime_value
 
     from customers
-
-    left join customer_orders using (customer_id)
-
-    left join customer_payments using (customer_id)
-
+    left join customer_orders
+        on customers.customer_id = customer_orders.customer_id
+    left join customer_payments
+        on customers.customer_id = customer_payments.customer_id
 )
 
 select * from final

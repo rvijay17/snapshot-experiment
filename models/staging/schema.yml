@@ -1,6 +1,7 @@
 version: 2
 
 models:
+  - name: source_transaction_set
   - name: stg_customers
     columns:
       - name: customer_id

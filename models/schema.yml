@@ -1,5 +1,12 @@
 version: 2
 
+sources:
+  - name: dev_evan
+    tables:
+      - name: raw_claims
+      - name: cc_transaction_set
+      - name: cc_transaction
+      - name: cc_transaction_line
 models:
   - name: customers
     description: This table has basic information about a customer, as well as some derived facts based on a customer's orders
