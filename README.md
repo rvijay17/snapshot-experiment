@@ -1,4 +1,4 @@
-## Testing dbt snapshots`
+## Testing dbt snapshots
 
 This project is an experiment in using multi-layer snapshots.
 
@@ -6,10 +6,12 @@ This project is an experiment in using multi-layer snapshots.
 flowchart LR 
   subgraph Source Layer
   daily-source-->snapshot([snapshot daily])-->source-history
+  ds2[daily-source]-->sn2([snapshot daily])-->sh2[source-history]
   end
   subgraph Integration Layer
   direction LR
   source-history-->intg-snapshot([intg snapshot daily])-->intghistory[intg history]
+   sh2-->intg-snapshot([intg snapshot daily])
   end
 ```
 
