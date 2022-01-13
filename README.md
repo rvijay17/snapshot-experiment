@@ -173,6 +173,14 @@ where '2021-07-03 23:59:59' between ts.dbt_valid_from and coalesce(ts.dbt_valid_
 
 {% endsnapshot %}
 ```
+This produces a result set like this:
+```
+claim_transaction_key|trans_date|trans_set_type|trans_set_userid|trans_type|trans_authorised|trans_desc|trans_amount|trans_update_time      |
+---------------------+----------+--------------+----------------+----------+----------------+----------+------------+-----------------------+
+123~372~3983         |2021-07-01|XT            |s26182          |Payment   |Yes             |New Laptop|         100|2021-07-01 12:01:16.000|
+123~372~3984         |2021-07-01|XT            |s26182          |Payment   |Yes             |New iPhone|         150|2021-07-01 12:14:21.000|
+123~389~4012         |2021-07-01|XT            |s26182          |Payment   |No              |New TV    |        1200|2021-07-01 12:45:11.000|
+```
 In practice, this could be driven by a processing date / or date spline to choose the correct date/timestamp:
 
 ### Further work
