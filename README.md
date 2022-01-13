@@ -4,7 +4,7 @@ This project is an experiment in using multi-layer snapshots.
 
 ```mermaid
 flowchart LR 
-  subgraph Source Layer
+  subgraph Curated Source Layer - Daily - or more frequent?
   daily-source-->snapshot([snapshot daily])-->source-history
   ds2[daily-source]-->sn2([snapshot daily])-->sh2[source-history]
   end
