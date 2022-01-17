@@ -5,15 +5,17 @@ This project is an experiment in using multi-layer snapshots.
 ```mermaid
 flowchart LR 
   subgraph Curated Source Layer - Daily - or more frequent?
-  daily-source-->snapshot([snapshot daily])-->source-history
-  ds2[daily-source]-->sn2([snapshot daily])-->sh2[source-history]
+  daily-source[daily source - \nwith TS]-->snapshot([snapshot daily -\n Timestamp])-->source-history
+  ds2[daily-source\nwithout TS]-->sn2([snapshot daily- \n Checkcols])-->sh2[source-history]
   end
   subgraph Integration Layer
   direction LR
-  source-history-->intg-snapshot([intg snapshot daily])-->intghistory[intg history]
+  source-history-->intg-snapshot([intg snapshot daily \n Timestamp])-->intghistory[intg history] 
    sh2-->intg-snapshot([intg snapshot daily])
   end
 ```
+Note: install the mermaid plugin to see the above diagram within VS Code. otherwise, here's a recent grab of the render:
+![here](etc/mermaid_render.png)
 
 ### What's in this repo?
 This repo contains [seeds](https://docs.getdbt.com/docs/building-a-dbt-project/seeds) that includes some (fake) raw data for this experiment. This is based off the examples
