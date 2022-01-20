@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: dev_evan
+  - name: dev_nat
     tables:
       - name: raw_claims
       - name: cc_transaction_set
