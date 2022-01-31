@@ -26,13 +26,13 @@ select concat(ts.id, '~', t.id, '~', tl.id) as claim_transaction_key
     , tl."desc"     as trans_desc
     , tl."amount"   as trans_amount
     , tl.updatetime as tl_updatetime
-    , to_timestamp('2021-07-04 23:59:59', 'YYYY-MM-DD HH24:MI:SS')::timestamp as updatetime
+    , to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::timestamp as updatetime
     
 from {{ ref('source_cc_transaction_set') }} ts 
   left join {{ ref('source_cc_transaction') }} t on ts.id = t.transetid
   left join {{ ref('source_cc_transaction_line') }} tl on t.id = tl.tranid
-where '2021-07-04 23:59:59' between ts.dbt_valid_from and coalesce(ts.dbt_valid_to,'9999-12-31 23:59:59')
-  and '2021-07-04 23:59:59' between t.dbt_valid_from  and coalesce(t.dbt_valid_to,'9999-12-31 23:59:59')
-  and '2021-07-04 23:59:59' between tl.dbt_valid_from and coalesce(tl.dbt_valid_to,'9999-12-31 23:59:59')
+where to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::timestamp between ts.dbt_valid_from and coalesce(ts.dbt_valid_to,'9999-12-31 23:59:59')
+  and to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::timestamp between t.dbt_valid_from  and coalesce(t.dbt_valid_to,'9999-12-31 23:59:59')
+  and to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::timestamp between tl.dbt_valid_from and coalesce(tl.dbt_valid_to,'9999-12-31 23:59:59')
 
 {% endsnapshot %}
