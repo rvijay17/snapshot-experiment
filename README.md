@@ -200,11 +200,15 @@ where '2021-07-03 23:59:59' between ts.dbt_valid_from and coalesce(ts.dbt_valid_
 ```
 This produces a result set like this:
 ```
-claim_transaction_key|trans_date|trans_set_type|trans_set_userid|trans_type|trans_authorised|trans_desc|trans_amount|trans_update_time      |
----------------------+----------+--------------+----------------+----------+----------------+----------+------------+-----------------------+
-123~372~3983         |2021-07-01|XT            |s26182          |Payment   |Yes             |New Laptop|         100|2021-07-01 12:01:16.000|
-123~372~3984         |2021-07-01|XT            |s26182          |Payment   |Yes             |New iPhone|         150|2021-07-01 12:14:21.000|
-123~389~4012         |2021-07-01|XT            |s26182          |Payment   |No              |New TV    |        1200|2021-07-01 12:45:11.000|
+claim_transaction_key|trans_date|trans_set_type|trans_type|trans_authorised|updatetime             |dbt_valid_from         |dbt_valid_to           |
+---------------------+----------+--------------+----------+----------------+-----------------------+-----------------------+-----------------------+
+123~372~3983         |2021-07-01|XT            |Payment   |Yes             |2021-07-01 12:01:16.000|2021-07-01 12:01:16.000|                       |
+123~372~3984         |2021-07-01|XT            |Payment   |Yes             |2021-07-01 12:14:21.000|2021-07-01 12:14:21.000|                       |
+123~389~4012         |2021-07-01|XT            |Payment   |No              |2021-07-01 12:45:11.000|2021-07-01 12:45:11.000|2021-07-02 10:23:34.000|
+123~389~4012         |2021-07-01|XT            |Payment   |Yes             |2021-07-02 10:23:34.000|2021-07-02 10:23:34.000|2021-07-03 11:17:56.000|
+123~389~4012         |2021-07-01|XT            |Payment   |Cancelled       |2021-07-03 11:17:56.000|2021-07-03 11:17:56.000|                       |
+911~363~5628         |2021-07-02|GH            |Payment   |No              |2021-07-02 10:56:12.000|2021-07-02 10:56:12.000|2021-07-03 15:08:11.000|
+911~363~5628         |2021-07-02|GH            |Payment   |Yes             |2021-07-03 15:08:11.000|2021-07-03 15:08:11.000|                       |
 ```
 In practice, this could be driven by a processing date / or date spline to choose the correct date/timestamp:
 
