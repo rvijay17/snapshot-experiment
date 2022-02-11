@@ -17,7 +17,7 @@ payments as (
 ),
 
 customer_orders as (
-
+ 
     select
         customer_id,
 
