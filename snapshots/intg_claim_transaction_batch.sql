@@ -23,7 +23,7 @@ select concat(ts.id, '~', t.id, '~', tl.id) as claim_transaction_key
     , t.auth        as trans_authorised
     , t.updatetime  as t_updatetime
 
-    , tl."desc"     as trans_desc
+    , tl."descr"    as trans_desc
     , tl."amount"   as trans_amount
     , tl.updatetime as tl_updatetime
     , to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::timestamp as updatetime

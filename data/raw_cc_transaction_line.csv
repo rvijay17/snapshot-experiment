@@ -1,4 +1,4 @@
-day_id,id,tranid,desc,amount,updatetime
+day_id,id,tranid,descr,amount,updatetime
 d1,3983,372,New Laptop,100,2021-07-01 12:01:16
 d1,3984,372,New iPhone,150,2021-07-01 12:14:21
 d1,4012,389,New TV,1200,2021-07-01 12:45:11
