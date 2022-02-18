@@ -2,7 +2,7 @@
 
 {{
     config(
-      tags=["intgclaimbatch"],
+      tags=["intgclaimtransactionbatch"],
       unique_key='claim_transaction_key',
       target_schema='dev_evan',
       strategy='check',

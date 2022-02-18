@@ -231,14 +231,14 @@ Possible cons:
 
 For example, to see the effective data from an effective batch_timestamp, this query joins the 3 entities:
 
-An example snapshot process is in the model: `intg_claim_transaction_checkminbatch`
+An example snapshot process is in the model: `intg_claim_transaction_check_batch`
 
 ```sql
-{% snapshot intg_claim_transaction_checkminbatch %}
+{% snapshot intg_claim_transaction_batch %}
 
 {{
     config(
-      tags=["intgcheckminbatch"],
+      tags=["intgclaimtransactionbatch"],
       unique_key='claim_transaction_key',
       target_schema='dev_evan',
       strategy='check',
@@ -246,7 +246,6 @@ An example snapshot process is in the model: `intg_claim_transaction_checkminbat
       updated_at='updatetime'
     )
 }}
-
 -- use the timestamps to determine if there are any differences
 -- but, use the batch timestamp as the timestamp
 
@@ -260,7 +259,7 @@ select concat(ts.id, '~', t.id, '~', tl.id) as claim_transaction_key
     , t.auth        as trans_authorised
     , t.updatetime  as t_updatetime
 
-    , tl."desc"     as trans_desc
+    , tl."descr"    as trans_desc
     , tl."amount"   as trans_amount
     , tl.updatetime as tl_updatetime
     , to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::timestamp as updatetime
@@ -274,7 +273,10 @@ where to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::tim
 
 {% endsnapshot %}
 ```
-
+To run this snapshot, run a command like this:
+```
+dbt snapshot --select tag:intgclaimtransactionbatch --vars '{"batch_timestamp": "2021-07-01 23:59:59"}'
+```
 This produces a result set like this:
 ```
 claim_transaction_key|trans_date|trans_set_type|ts_updatetime          |ts_updatetime          |tl_updatetime          |trans_type|trans_authorised|updatetime             |dbt_valid_from         |dbt_valid_to           |
