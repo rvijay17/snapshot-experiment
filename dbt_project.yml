@@ -4,6 +4,20 @@ version: '0.1'
 profile: 'pg'
 config-version: 2
 
+vars:
+  is_delta_load: False
+  batch_name: "NA"
+  delta_load_batch_id: -1
+  delta_load_schema: cntrl
+  completed_status: Completed # not used - result.status is "success" by default
+  success_status: success
+  started_status: started
+  failed_status: Failed # not used - result.status is "error" by default
+  error_status: error
+
+on-run-start: "{{ delta_load_master_control_start() }}"
+on-run-end: "{{ delta_load_master_control_complete() }}"
+
 source-paths: ["models"]
 analysis-paths: ["analysis"]
 test-paths: ["tests"]

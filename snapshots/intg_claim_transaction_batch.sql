@@ -3,6 +3,7 @@
 {{
     config(
       tags=["intgclaimtransactionbatch"],
+      pre_hook=before_begin("{{ delta_load_job_control_start('" ~ this.identifier ~ "') }}"),
       unique_key='claim_transaction_key',
       target_schema='dev_evan',
       strategy='check',
@@ -23,7 +24,7 @@ select concat(ts.id, '~', t.id, '~', tl.id) as claim_transaction_key
     , t.auth        as trans_authorised
     , t.updatetime  as t_updatetime
 
-    , tl."descr"    as trans_desc
+    -- , tl."descr"    as trans_desc
     , tl."amount"   as trans_amount
     , tl.updatetime as tl_updatetime
     , to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::timestamp as updatetime
