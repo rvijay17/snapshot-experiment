@@ -62,7 +62,9 @@ $ cd jaffle_shop
 
 4. Set up a profile called `jaffle_shop` to connect to a data warehouse by following [these instructions](https://docs.getdbt.com/docs/configure-your-profile). 
 
-So far, this has just been using a locally installed Postgress database on macOS. An easy way to get started with this is via the app [here](https://postgresapp.com/). 
+So far, this has just been using a locally installed Postgress database on macOS. An easy way to get started with this is via the app [here](https://postgresapp.com/). If you have Docker installed, you could also run Postgres as a container in your machine.
+
+`docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword postgres`
 
 To run SQL against the database, use any client such as:
 * pgadmin 4 - https://www.pgadmin.org/
@@ -121,10 +123,19 @@ from raw_cc_transaction_line rt
 where day_id = 'd1'
 ;
 ```
+8. Create the Delta Load control tables in the "cntrl" schema
+```sql
+create schema cntrl;
 
-8. Perform a daily snapshot:
+create table cntrl.delta_load_master_control(sequence_id int, batch_name varchar(20), status varchar(20), started_time timestamp, completed_time timestamp, retry_amount int, retry_delay_in_minutes int, cdc_start_datetime timestamp, cdc_end_datetime timestamp, batch_period_in_minutes int);
+
+create table cntrl.delta_load_job_control(batch_seq_id int, job_table_name varchar(20), job_table_status varchar(20), no_load_attempts int, table_load_start_time timestamp, table_load_end_date timestamp);
+
+create table cntrl.delta_load_global_settings(batch_name varchar(20), retry_count int, retry_delay_in_minutes int, batch_period_in_minutes int, batch_load_type char(1), default_source_system varchar(20), initial_load_start_date timestamp, initial_load_end_date timestamp);
+```
+9. Perform a daily snapshot:
 ```bash
-$ dbt snapshot --select tag:source
+$ dbt snapshot --select tag:source --vars "{is_delta_load: True, batch_name: PC}"
 ```
 This will produce / update the Daily snapshots to be used at the source layer
 
@@ -275,7 +286,7 @@ where to_timestamp('{{ var("batch_timestamp") }}', 'YYYY-MM-DD HH24:MI:SS')::tim
 ```
 To run this snapshot, run a command like this:
 ```
-dbt snapshot --select tag:intgclaimtransactionbatch --vars '{"batch_timestamp": "2021-07-01 23:59:59"}'
+dbt snapshot --select tag:intgclaimtransactionbatch --vars '{"batch_timestamp": "2021-07-01 23:59:59", is_delta_load: True, batch_name: PC}'
 ```
 This produces a result set like this:
 ```
