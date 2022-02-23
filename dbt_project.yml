@@ -10,17 +10,17 @@ vars:
   delta_load_batch_id: -1
   delta_load_schema: cntrl
   completed_status: Completed # not used - result.status is "success" by default
-  success_status: success
-  started_status: started
+  delta_load_success: success
+  delta_load_started: started
   failed_status: Failed # not used - result.status is "error" by default
-  error_status: error
+  delta_load_error: error
 
 on-run-start: "{{ mu_delta_load_master_control_start() }}"
 on-run-end: "{{ mu_delta_load_master_control_complete() }}"
 
-dispatch:
-  - macro_namespace: dbt
-    search_order: ['iag_delta_postgres_test', 'dbt']
+# dispatch:
+#   - macro_namespace: dbt
+#     search_order: ['iag_delta_postgres_test', 'dbt']
 
 source-paths: ["models"]
 analysis-paths: ["analysis"]

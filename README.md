@@ -127,9 +127,9 @@ where day_id = 'd1'
 ```sql
 create schema cntrl;
 
-create table cntrl.delta_load_master_control(sequence_id int, batch_name varchar(20), status varchar(20), started_time timestamp, completed_time timestamp, retry_amount int, retry_delay_in_minutes int, cdc_start_datetime timestamp, cdc_end_datetime timestamp, batch_period_in_minutes int);
+create table cntrl.dbt_delta_load_master_control(sequence_id int, batch_name varchar(20), status varchar(20), started_time timestamp, completed_time timestamp, retry_amount int, retry_delay_in_minutes int, cdc_start_datetime timestamp, cdc_end_datetime timestamp, batch_period_in_minutes int);
 
-create table cntrl.delta_load_job_control(batch_seq_id int, job_table_name varchar(20), job_table_status varchar(20), no_load_attempts int, table_load_start_time timestamp, table_load_end_date timestamp);
+create table cntrl.dbt_delta_load_job_control(batch_seq_id int, target_table_name varchar(50), job_status varchar(20), no_load_attempts int, job_start_timestamp timestamp);
 
 create table cntrl.delta_load_global_settings(batch_name varchar(20), retry_count int, retry_delay_in_minutes int, batch_period_in_minutes int, batch_load_type char(1), default_source_system varchar(20), initial_load_start_date timestamp, initial_load_end_date timestamp);
 ```

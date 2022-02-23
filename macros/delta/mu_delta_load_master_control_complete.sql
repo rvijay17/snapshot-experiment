@@ -18,11 +18,11 @@
 
 {% if execute %}
 
-    {{ iag_common.mu_delta_load_log_results(results) }}
+    {{ mu_delta_load_log_results(results) }}
 
     {% if var('is_delta_load') and var('delta_load_batch_name') != 'NA' %}
         {# set batchFailed = False #}
-        {% set batch_id = iag_common.mu_delta_load_get_batch_id() if var('delta_load_batch_id') == -1 else var('delta_load_batch_id') %}
+        {% set batch_id = mu_delta_load_get_batch_id() if var('delta_load_batch_id') == -1 else var('delta_load_batch_id') %}
         {% for res in results -%}
             {# Since we are not re-starting a job, there is no need to check control tables #}
             {# if mu_delta_load_run_snapshot_yn(res.node.name) #}

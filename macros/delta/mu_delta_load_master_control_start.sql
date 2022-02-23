@@ -14,8 +14,8 @@
 {% if execute %}
 
     {% if var('is_delta_load') and var('delta_load_batch_name') != 'NA' and var('delta_load_batch_id') == -1 %}
-        {{ log("Starting batch " ~ iag_common.mu_delta_load_get_batch_id(), info=True) }}
-         {% do run_query("insert into " ~ var('delta_load_schema') ~ ".dbt_delta_load_master_control (sequence_id, batch_name, status, started_time) values (" ~ iag_common.mu_delta_load_get_batch_id() ~ ", '" ~ var('delta_load_batch_name') ~ "', '" ~ var('delta_load_started') ~ "', current_timestamp)") %}
+        {{ log("Starting batch " ~ mu_delta_load_get_batch_id(), info=True) }}
+         {% do run_query("insert into " ~ var('delta_load_schema') ~ ".dbt_delta_load_master_control (sequence_id, batch_name, status, started_time) values (" ~ mu_delta_load_get_batch_id() ~ ", '" ~ var('delta_load_batch_name') ~ "', '" ~ var('delta_load_started') ~ "', current_timestamp)") %}
     {% else %}
         {{ log("Not running on_run_start because the input parameters are incorrect", info=True) }}
     {% endif %}
