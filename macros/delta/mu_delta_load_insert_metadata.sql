@@ -15,15 +15,17 @@
     {% set select_query %}
         select count(*) from information_schema.columns where table_schema = '{{ src_schema_name }}' and table_name = '{{ src_table_name }}' and column_name = '{{ column_name }}'
     {% endset %}
-    {% set result = run_query(select_query) %}
-    {% if result[0][0] == 1%}
-        {% set retired_column %}
-            case when coalesce({{ column_name }}, 0) = 0 then 'A' else 'D' end
-        {% endset %}
-    {% else %}
-        {% set retired_column %}
-            'A'
-        {% endset %}    
+    {% if execute %}
+        {% set result = run_query(select_query) %}
+        {% if result[0][0] == 1%}
+            {% set retired_column %}
+                case when coalesce({{ column_name }}, 0) = 0 then 'A' else 'D' end
+            {% endset %}
+        {% else %}
+            {% set retired_column %}
+                'A'
+            {% endset %}    
+        {% endif %}
+        {{mu_delta_load_get_batch_id()}}::BIGINT as batch_id, {{ retired_column }}::TEXT as row_status
     {% endif %}
-    {{mu_delta_load_get_batch_id()}}::BIGINT as batch_id, {{ retired_column }}::TEXT as row_status
 {% endmacro %}

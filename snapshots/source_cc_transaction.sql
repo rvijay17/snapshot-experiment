@@ -10,7 +10,7 @@
     )
 }}
 
-select {{ mu_delta_load_insert_metadata('sor_cc_ci', 'cc_transaction', 'retired') }} , 
+select {{ mu_delta_load_insert_metadata('dev_evan', 'cc_transaction', 'retired') }} , 
        * 
 from {{ source('dev_evan', 'cc_transaction') }}
 
