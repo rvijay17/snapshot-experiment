@@ -5,7 +5,7 @@ profile: 'pg'
 config-version: 2
 
 vars:
-  is_delta_load: True
+  is_delta_load: False
   batch_name: "PC"
   delta_load_batch_id: -1
   delta_load_schema: cntrl
@@ -36,7 +36,8 @@ clean-targets:
 
 models:
   jaffle_shop:
-      materialized: table
+      +materialized: view
+      +post-hook: "SELECT pg_sleep(1)"
       staging:
         materialized: view
 snapshots:
